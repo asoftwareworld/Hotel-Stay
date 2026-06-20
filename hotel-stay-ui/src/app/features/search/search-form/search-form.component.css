@@ -1,0 +1,25 @@
+.form-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: #1e293b;
+}
+
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .date-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-full {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}

@@ -1,0 +1,111 @@
+<div class="card reservation-card">
+  <h2 class="section-title">Complete Your Reservation</h2>
+
+  <!-- Room Summary -->
+  <div class="room-summary">
+    <h3 class="summary-heading">Selected Room</h3>
+    <div class="summary-grid">
+      <div class="summary-row">
+        <span class="summary-label">Provider</span>
+        <span class="summary-value"><app-provider-badge [provider]="room.provider" /></span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Room Type</span>
+        <span class="summary-value">{{ room.roomType }} Room</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Destination</span>
+        <span class="summary-value">{{ destination }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Check-in</span>
+        <span class="summary-value">{{ checkIn }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Check-out</span>
+        <span class="summary-value">{{ checkOut }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Rate</span>
+        <span class="summary-value price">${{ room.perNightRate }} / night</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Total</span>
+        <span class="summary-value price total">${{ room.totalPrice }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Cancellation</span>
+        <span class="summary-value">
+          <span [class]="getPolicyBadgeClass(room.cancellationPolicy)">
+            {{ getPolicyLabel(room.cancellationPolicy) }}
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Guest Details Form -->
+  <h3 class="summary-heading">Guest Details</h3>
+
+  @if (isInternational) {
+    <div class="info-note info-note--passport">
+      &#x1F6C2; Passport required for international destinations
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label class="form-label" for="guestName">Full Name</label>
+      <input
+        id="guestName"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="guestNameInvalid"
+        formControlName="guestName"
+        placeholder="As shown on your travel document"
+        autocomplete="name"
+      />
+      @if (guestNameInvalid) {
+        <span class="form-error">Please enter a valid full name (at least 2 characters).</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="documentType">Document Type</label>
+      <select
+        id="documentType"
+        class="form-control"
+        formControlName="documentType"
+      >
+        @for (docType of allowedDocumentTypes; track docType) {
+          <option [value]="docType">{{ getDocTypeLabel(docType) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="documentNumber">Document Number</label>
+      <input
+        id="documentNumber"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="documentNumberInvalid"
+        formControlName="documentNumber"
+        placeholder="Enter your document number"
+        autocomplete="off"
+      />
+      @if (documentNumberInvalid) {
+        <span class="form-error">Please enter a valid document number.</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-full">Confirm Reservation</button>
+      <button type="button" class="btn-link" (click)="onCancel()">
+        &larr; Back to results
+      </button>
+    </div>
+  </form>
+</div>

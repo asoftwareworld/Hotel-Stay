@@ -1,0 +1,17 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/hotel-stay-ui/node_modules
+/hotel-stay-ui/.angular/cache/17.3.17
+/.vs
+/HotelStay.Api/bin/Debug/net8.0
+/HotelStay.Api/obj
+/HotelStay.Application/bin/Debug/net8.0
+/HotelStay.Application/obj
+/HotelStay.Domain/bin/Debug/net8.0
+/HotelStay.Domain/obj
+/HotelStay.Infrastructure/bin/Debug/net8.0
+/HotelStay.Infrastructure/obj
+/HotelStay.Tests/bin/Debug/net8.0
+/HotelStay.Tests/obj

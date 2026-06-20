@@ -1,0 +1,74 @@
+<div class="card">
+  <h2 class="form-title">Search for Rooms</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label class="form-label" for="destination">Destination</label>
+      <select
+        id="destination"
+        class="form-control"
+        [class.is-invalid]="destinationInvalid"
+        formControlName="destination"
+      >
+        <option value="">-- Select a city --</option>
+        @for (city of allCities; track city) {
+          <option [value]="city">{{ city }}</option>
+        }
+      </select>
+      @if (destinationInvalid) {
+        <span class="form-error">Please select a destination.</span>
+      }
+    </div>
+
+    <div class="date-row">
+      <div class="form-group">
+        <label class="form-label" for="checkIn">Check-in</label>
+        <input
+          id="checkIn"
+          type="date"
+          class="form-control"
+          [class.is-invalid]="checkInInvalid"
+          [min]="today"
+          formControlName="checkIn"
+        />
+        @if (checkInInvalid) {
+          <span class="form-error">Please select a check-in date.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="checkOut">Check-out</label>
+        <input
+          id="checkOut"
+          type="date"
+          class="form-control"
+          [class.is-invalid]="checkOutInvalid || checkOutBeforeCheckIn"
+          [min]="today"
+          formControlName="checkOut"
+        />
+        @if (checkOutInvalid) {
+          <span class="form-error">Please select a check-out date.</span>
+        }
+        @if (checkOutBeforeCheckIn) {
+          <span class="form-error">Check-out must be after check-in.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="roomType">Room Type <span class="text-muted">(optional)</span></label>
+      <select
+        id="roomType"
+        class="form-control"
+        formControlName="roomType"
+      >
+        <option value="">Any room type</option>
+        <option value="Standard">Standard</option>
+        <option value="Deluxe">Deluxe</option>
+        <option value="Suite">Suite</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-full">Search Rooms</button>
+  </form>
+</div>

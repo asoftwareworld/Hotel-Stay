@@ -1,0 +1,32 @@
+.page-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  color: white;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.page-header p {
+  margin: 0;
+  opacity: 0.85;
+  font-size: 1rem;
+}
+
+.main-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1.05rem;
+}

@@ -1,0 +1,47 @@
+<div class="results-header">
+  <h2 class="results-title">Available Rooms <span class="results-count">({{ rooms.length }} found)</span></h2>
+  <button class="btn btn-secondary btn-sm" type="button" (click)="toggleSort()">
+    @if (sortOrder() === 'asc') {
+      ↑ Price
+    } @else {
+      ↓ Price
+    }
+  </button>
+</div>
+
+@for (room of sortedRooms(); track room.provider + room.roomType + room.perNightRate) {
+  <div class="room-card card">
+    <div class="room-card__header">
+      <div class="room-card__identity">
+        <app-provider-badge [provider]="room.provider" />
+        <span class="room-type">{{ getRoomTypeLabel(room.roomType) }}</span>
+        @if (room.starRating) {
+          <span class="star-rating" title="{{ room.starRating }} stars">{{ getStars(room.starRating) }}</span>
+        }
+      </div>
+      <button class="btn btn-primary btn-sm select-btn" type="button" (click)="onSelect(room)">
+        Select Room &rarr;
+      </button>
+    </div>
+
+    <div class="room-card__body">
+      <div class="room-card__pricing">
+        <span class="price-per-night">${{ room.perNightRate }}<span class="price-unit"> / night</span></span>
+        <span class="price-total">${{ room.totalPrice }} total ({{ room.nights }} nights)</span>
+      </div>
+
+      <div class="room-card__meta">
+        <span [class]="getPolicyBadgeClass(room.cancellationPolicy)">
+          {{ getPolicyLabel(room.cancellationPolicy) }}
+        </span>
+      </div>
+
+      @if (room.amenities && room.amenities.length > 0) {
+        <div class="room-card__amenities">
+          <span class="amenities-label text-muted">Amenities: </span>
+          <em class="amenities-list">{{ room.amenities.join(', ') }}</em>
+        </div>
+      }
+    </div>
+  </div>
+}

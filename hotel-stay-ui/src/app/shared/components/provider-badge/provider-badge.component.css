@@ -1,0 +1,19 @@
+.provider-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge-premier {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-budget {
+  background: #dcfce7;
+  color: #15803d;
+}

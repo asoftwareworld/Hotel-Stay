@@ -1,0 +1,113 @@
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.results-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.results-count {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+
+.room-card {
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.room-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.room-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.room-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.room-type {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.star-rating {
+  color: #f59e0b;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.room-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.room-card__pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.price-per-night {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.price-unit {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.price-total {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.room-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.room-card__amenities {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.amenities-list {
+  color: #475569;
+}
+
+.select-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .room-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

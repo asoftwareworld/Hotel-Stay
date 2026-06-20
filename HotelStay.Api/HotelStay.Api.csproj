@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HotelStay.Application\HotelStay.Application.csproj" />
+    <ProjectReference Include="..\HotelStay.Domain\HotelStay.Domain.csproj" />
+    <ProjectReference Include="..\HotelStay.Infrastructure\HotelStay.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
