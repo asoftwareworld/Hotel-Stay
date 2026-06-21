@@ -3,6 +3,7 @@ using HotelStay.Application.DTOs;
 using HotelStay.Application.Interfaces;
 using HotelStay.Application.Services;
 using HotelStay.Domain.Enums;
+using HotelStay.Domain.Services;
 using HotelStay.Domain.ValueObjects;
 using Moq;
 using Xunit;
@@ -13,6 +14,7 @@ public class HotelSearchServiceTests
 {
     private static readonly DateOnly CheckIn = new(2025, 8, 1);
     private static readonly DateOnly CheckOut = new(2025, 8, 5);
+    private static readonly CityClassificationService CityClassification = new();
 
     private static SearchQueryDto BuildQuery(RoomType? roomType = null) =>
         new("Paris", CheckIn, CheckOut, roomType);
@@ -34,7 +36,7 @@ public class HotelSearchServiceTests
                 new("Provider2", RoomType.Deluxe, 150m, 600m, 4, CancellationPolicy.Flexible, null, null),
             });
 
-        var sut = new HotelSearchService([provider1.Object, provider2.Object]);
+        var sut = new HotelSearchService([provider1.Object, provider2.Object], CityClassification);
 
         var result = await sut.SearchAsync(BuildQuery());
 
@@ -54,7 +56,7 @@ public class HotelSearchServiceTests
                 new("Provider1", RoomType.Suite,    200m, 800m, 4, CancellationPolicy.NonRefundable,    null, null),
             });
 
-        var sut = new HotelSearchService([provider.Object]);
+        var sut = new HotelSearchService([provider.Object], CityClassification);
 
         var result = await sut.SearchAsync(BuildQuery(RoomType.Standard));
 
@@ -69,7 +71,7 @@ public class HotelSearchServiceTests
         provider.Setup(p => p.SearchAsync(It.IsAny<SearchCriteria>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<HotelRoom>());
 
-        var sut = new HotelSearchService([provider.Object]);
+        var sut = new HotelSearchService([provider.Object], CityClassification);
 
         var result = await sut.SearchAsync(BuildQuery());
 

@@ -1,11 +1,14 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using HotelStay.Api.Endpoints;
-using Microsoft.AspNetCore.RateLimiting;
 using HotelStay.Api.Middleware;
 using HotelStay.Application.Services;
 using HotelStay.Domain.Services;
 using HotelStay.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -34,6 +37,28 @@ try
         });
     });
 
+    // JWT authentication
+    var jwtKey = builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                ClockSkew = TimeSpan.Zero,
+            };
+        });
+
+    builder.Services.AddAuthorization();
+
     builder.Services.AddInfrastructure();
 
     builder.Services.AddSingleton<CityClassificationService>();
@@ -41,6 +66,7 @@ try
 
     builder.Services.AddScoped<HotelSearchService>();
     builder.Services.AddScoped<ReservationService>();
+    builder.Services.AddScoped<AuthService>();
 
     builder.Services.AddTransient<ExceptionMiddleware>();
 
@@ -71,11 +97,15 @@ try
 
     var app = builder.Build();
 
+    // Serilog outermost so it sees the final status code after exception handling
+    app.UseSerilogRequestLogging();
     app.UseExceptionMiddleware();
     app.UseCors("AllowAngular");
     app.UseRateLimiter();
-    app.UseSerilogRequestLogging();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
+    app.MapAuthEndpoints();
     app.MapHotelEndpoints();
 
     app.Run();

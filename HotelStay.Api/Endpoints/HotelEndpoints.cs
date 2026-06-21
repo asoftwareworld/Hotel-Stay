@@ -15,20 +15,26 @@ public static class HotelEndpoints
         app.MapGet("/hotels/search", SearchHotelsAsync)
             .WithName("SearchHotels")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<SearchResultDto>(StatusCodes.Status200OK)
-            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized);
 
         app.MapPost("/hotels/reserve", ReserveRoomAsync)
             .WithName("ReserveRoom")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<ReservationDetailDto>(StatusCodes.Status201Created)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status422UnprocessableEntity);
 
         app.MapGet("/hotels/reservation/{reference}", GetReservationAsync)
             .WithName("GetReservation")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<ReservationDetailDto>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
     }
 
@@ -100,6 +106,54 @@ public static class HotelEndpoints
         {
             return Results.Problem(
                 detail: "Request body is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Provider))
+        {
+            return Results.Problem(
+                detail: "The 'provider' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Destination))
+        {
+            return Results.Problem(
+                detail: "The 'destination' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (request.CheckOut <= request.CheckIn)
+        {
+            return Results.Problem(
+                detail: "The 'checkOut' date must be after the 'checkIn' date.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.GuestName))
+        {
+            return Results.Problem(
+                detail: "The 'guestName' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.DocumentNumber))
+        {
+            return Results.Problem(
+                detail: "The 'documentNumber' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (request.PerNightRate <= 0)
+        {
+            return Results.Problem(
+                detail: "The 'perNightRate' must be greater than zero.",
                 title: "Bad Request",
                 statusCode: StatusCodes.Status400BadRequest);
         }

@@ -6,7 +6,8 @@ using Xunit;
 
 namespace HotelStay.Tests.Integration;
 
-public class SearchEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("Integration")]
+public class SearchEndpointTests
 {
     private readonly HttpClient _client;
 
@@ -27,6 +28,14 @@ public class SearchEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task GetSearch_CheckOutBeforeCheckIn_Returns400()
     {
         var response = await _client.GetAsync("/hotels/search?destination=Oslo&checkIn=2025-10-05&checkOut=2025-10-01");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetSearch_UnknownDestination_Returns400()
+    {
+        var response = await _client.GetAsync("/hotels/search?destination=FakeCity&checkIn=2025-10-01&checkOut=2025-10-05");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
