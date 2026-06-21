@@ -47,6 +47,12 @@ public class ExceptionMiddleware : IMiddleware
 
     private static async Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
     {
+        if (context.Response.HasStarted)
+        {
+            // Headers already sent — cannot write a new error response; abort silently.
+            return;
+        }
+
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";
 

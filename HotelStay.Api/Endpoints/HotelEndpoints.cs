@@ -9,6 +9,9 @@ public static class HotelEndpoints
 {
     public static void MapHotelEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapGet("/", () => Results.Ok(new { status = "ok", service = "HotelStay API", version = "1.0" }))
+            .WithTags("Health");
+
         app.MapGet("/hotels/search", SearchHotelsAsync)
             .WithName("SearchHotels")
             .WithTags("Hotels")
