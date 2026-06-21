@@ -1,4 +1,5 @@
 using HotelStay.Application.Interfaces;
+using HotelStay.Infrastructure.Auth;
 using HotelStay.Infrastructure.Persistence;
 using HotelStay.Infrastructure.Providers;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,9 @@ public static class InfrastructureServiceExtensions
         services.AddSingleton<IHotelProvider, PremierStaysProvider>();
         services.AddSingleton<IHotelProvider, BudgetNestsProvider>();
         services.AddSingleton<IReservationStore, InMemoryReservationStore>();
+        services.AddSingleton<IUserStore, InMemoryUserStore>();
+        services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         return services;
     }
 }

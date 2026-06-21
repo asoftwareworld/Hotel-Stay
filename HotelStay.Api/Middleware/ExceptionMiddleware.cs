@@ -37,6 +37,24 @@ public class ExceptionMiddleware : IMiddleware
             await WriteProblemAsync(context, StatusCodes.Status404NotFound,
                 "Not Found", ex.Message);
         }
+        catch (HotelStay.Domain.Exceptions.InvalidCredentialsException ex)
+        {
+            _logger.LogInformation("Login failed: {Message}", ex.Message);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized,
+                "Unauthorized", ex.Message);
+        }
+        catch (HotelStay.Domain.Exceptions.EmailAlreadyExistsException ex)
+        {
+            _logger.LogInformation("Registration conflict: {Message}", ex.Message);
+            await WriteProblemAsync(context, StatusCodes.Status409Conflict,
+                "Conflict", ex.Message);
+        }
+        catch (HotelStay.Domain.Exceptions.InvalidRefreshTokenException ex)
+        {
+            _logger.LogInformation("Refresh token invalid: {Message}", ex.Message);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized,
+                "Unauthorized", ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error occurred");

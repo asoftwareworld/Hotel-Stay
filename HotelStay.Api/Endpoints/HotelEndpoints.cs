@@ -15,20 +15,26 @@ public static class HotelEndpoints
         app.MapGet("/hotels/search", SearchHotelsAsync)
             .WithName("SearchHotels")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<SearchResultDto>(StatusCodes.Status200OK)
-            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized);
 
         app.MapPost("/hotels/reserve", ReserveRoomAsync)
             .WithName("ReserveRoom")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<ReservationDetailDto>(StatusCodes.Status201Created)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status422UnprocessableEntity);
 
         app.MapGet("/hotels/reservation/{reference}", GetReservationAsync)
             .WithName("GetReservation")
             .WithTags("Hotels")
+            .RequireAuthorization()
             .Produces<ReservationDetailDto>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
     }
 
