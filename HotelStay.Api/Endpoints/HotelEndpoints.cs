@@ -104,6 +104,54 @@ public static class HotelEndpoints
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
+        if (string.IsNullOrWhiteSpace(request.Provider))
+        {
+            return Results.Problem(
+                detail: "The 'provider' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Destination))
+        {
+            return Results.Problem(
+                detail: "The 'destination' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (request.CheckOut <= request.CheckIn)
+        {
+            return Results.Problem(
+                detail: "The 'checkOut' date must be after the 'checkIn' date.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.GuestName))
+        {
+            return Results.Problem(
+                detail: "The 'guestName' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.DocumentNumber))
+        {
+            return Results.Problem(
+                detail: "The 'documentNumber' field is required.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (request.PerNightRate <= 0)
+        {
+            return Results.Problem(
+                detail: "The 'perNightRate' must be greater than zero.",
+                title: "Bad Request",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
         var result = await reservationService.ReserveAsync(request, ct);
 
         return Results.Created($"/hotels/reservation/{result.Reference}", result);

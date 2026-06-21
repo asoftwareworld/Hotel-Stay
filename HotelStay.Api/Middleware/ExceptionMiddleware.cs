@@ -58,9 +58,11 @@ public class ExceptionMiddleware : IMiddleware
 
         var problem = new ProblemDetails
         {
+            Type = "https://tools.ietf.org/html/rfc7807",
             Status = statusCode,
             Title = title,
             Detail = detail,
+            Instance = context.Request.Path,
         };
 
         var json = JsonSerializer.Serialize(problem, new JsonSerializerOptions

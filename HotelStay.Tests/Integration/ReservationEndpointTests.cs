@@ -10,7 +10,8 @@ using Xunit;
 
 namespace HotelStay.Tests.Integration;
 
-public class ReservationEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("Integration")]
+public class ReservationEndpointTests
 {
     private readonly HttpClient _client;
 

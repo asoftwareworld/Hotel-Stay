@@ -1,5 +1,6 @@
 using HotelStay.Application.DTOs;
 using HotelStay.Application.Interfaces;
+using HotelStay.Domain.Services;
 using HotelStay.Domain.ValueObjects;
 
 namespace HotelStay.Application.Services;
@@ -7,14 +8,18 @@ namespace HotelStay.Application.Services;
 public class HotelSearchService
 {
     private readonly IEnumerable<IHotelProvider> _providers;
+    private readonly CityClassificationService _cityClassification;
 
-    public HotelSearchService(IEnumerable<IHotelProvider> providers)
+    public HotelSearchService(IEnumerable<IHotelProvider> providers, CityClassificationService cityClassification)
     {
         _providers = providers;
+        _cityClassification = cityClassification;
     }
 
     public async Task<SearchResultDto> SearchAsync(SearchQueryDto query, CancellationToken ct = default)
     {
+        _cityClassification.Classify(query.Destination);
+
         var criteria = new SearchCriteria(
             query.Destination,
             query.CheckIn,
