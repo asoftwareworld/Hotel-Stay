@@ -82,5 +82,25 @@ public class SearchEndpointTests : IAsyncLifetime
         providers.Should().Contain("BudgetNests");
     }
 
+    [Fact]
+    public async Task GetSearch_WithRoomTypeFilter_ReturnsOnlyMatchingRooms()
+    {
+        var response = await _client.GetAsync(
+            "/hotels/search?destination=Oslo&checkIn=2025-10-01&checkOut=2025-10-05&roomType=Standard");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        var doc = JsonDocument.Parse(body);
+
+        var results = doc.RootElement.GetProperty("results");
+        results.GetArrayLength().Should().BeGreaterThan(0);
+
+        foreach (var room in results.EnumerateArray())
+        {
+            room.GetProperty("roomType").GetString().Should().Be("Standard");
+        }
+    }
+
     private record TestTokenResponse(string AccessToken, string RefreshToken, int ExpiresIn);
 }

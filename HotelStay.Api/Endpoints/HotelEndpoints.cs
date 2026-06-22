@@ -1,3 +1,4 @@
+using FluentValidation;
 using HotelStay.Application.DTOs;
 using HotelStay.Application.Services;
 using HotelStay.Domain.Enums;
@@ -10,6 +11,7 @@ public static class HotelEndpoints
     public static void MapHotelEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/", () => Results.Ok(new { status = "ok", service = "HotelStay API", version = "1.0" }))
+            .AllowAnonymous()
             .WithTags("Health");
 
         app.MapGet("/hotels/search", SearchHotelsAsync)
@@ -44,39 +46,14 @@ public static class HotelEndpoints
         [FromQuery] string? checkOut,
         [FromQuery] string? roomType,
         HotelSearchService searchService,
+        IValidator<SearchQueryDto> validator,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(destination))
-        {
-            return Results.Problem(
-                detail: "The 'destination' query parameter is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+        if (!DateOnly.TryParse(checkIn, out var parsedCheckIn))
+            parsedCheckIn = default;
 
-        if (string.IsNullOrWhiteSpace(checkIn) || !DateOnly.TryParse(checkIn, out var parsedCheckIn))
-        {
-            return Results.Problem(
-                detail: "The 'checkIn' query parameter is required and must be a valid date (yyyy-MM-dd).",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (string.IsNullOrWhiteSpace(checkOut) || !DateOnly.TryParse(checkOut, out var parsedCheckOut))
-        {
-            return Results.Problem(
-                detail: "The 'checkOut' query parameter is required and must be a valid date (yyyy-MM-dd).",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (parsedCheckOut <= parsedCheckIn)
-        {
-            return Results.Problem(
-                detail: "The 'checkOut' date must be after the 'checkIn' date.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+        if (!DateOnly.TryParse(checkOut, out var parsedCheckOut))
+            parsedCheckOut = default;
 
         RoomType? parsedRoomType = null;
         if (!string.IsNullOrWhiteSpace(roomType))
@@ -91,75 +68,30 @@ public static class HotelEndpoints
             parsedRoomType = rt;
         }
 
-        var query = new SearchQueryDto(destination, parsedCheckIn, parsedCheckOut, parsedRoomType);
-        var result = await searchService.SearchAsync(query, ct);
+        var query = new SearchQueryDto(destination ?? string.Empty, parsedCheckIn, parsedCheckOut, parsedRoomType);
 
+        var validation = await validator.ValidateAsync(query, ct);
+        if (!validation.IsValid)
+            throw new ValidationException(validation.Errors);
+
+        var result = await searchService.SearchAsync(query, ct);
         return Results.Ok(result);
     }
 
     private static async Task<IResult> ReserveRoomAsync(
         [FromBody] ReserveRequestDto? request,
         ReservationService reservationService,
+        IValidator<ReserveRequestDto> validator,
         CancellationToken ct)
     {
         if (request is null)
-        {
-            return Results.Problem(
-                detail: "Request body is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+            return Results.Problem("Request body is required.", statusCode: 400, title: "Bad Request");
 
-        if (string.IsNullOrWhiteSpace(request.Provider))
-        {
-            return Results.Problem(
-                detail: "The 'provider' field is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Destination))
-        {
-            return Results.Problem(
-                detail: "The 'destination' field is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (request.CheckOut <= request.CheckIn)
-        {
-            return Results.Problem(
-                detail: "The 'checkOut' date must be after the 'checkIn' date.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (string.IsNullOrWhiteSpace(request.GuestName))
-        {
-            return Results.Problem(
-                detail: "The 'guestName' field is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (string.IsNullOrWhiteSpace(request.DocumentNumber))
-        {
-            return Results.Problem(
-                detail: "The 'documentNumber' field is required.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (request.PerNightRate <= 0)
-        {
-            return Results.Problem(
-                detail: "The 'perNightRate' must be greater than zero.",
-                title: "Bad Request",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+        var validation = await validator.ValidateAsync(request, ct);
+        if (!validation.IsValid)
+            throw new ValidationException(validation.Errors);
 
         var result = await reservationService.ReserveAsync(request, ct);
-
         return Results.Created($"/hotels/reservation/{result.Reference}", result);
     }
 
@@ -169,7 +101,6 @@ public static class HotelEndpoints
         CancellationToken ct)
     {
         var result = await reservationService.GetByReferenceAsync(reference, ct);
-
         return Results.Ok(result);
     }
 }

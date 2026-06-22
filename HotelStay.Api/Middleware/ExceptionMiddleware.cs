@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FluentValidation;
 using HotelStay.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,11 @@ public class ExceptionMiddleware : IMiddleware
         try
         {
             await next(context);
+        }
+        catch (ValidationException ex)
+        {
+            var detail = string.Join(" ", ex.Errors.Select(e => e.ErrorMessage));
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Bad Request", detail);
         }
         catch (DocumentMismatchException ex)
         {

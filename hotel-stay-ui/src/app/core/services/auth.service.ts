@@ -6,7 +6,7 @@ import { LoginRequest, RegisterRequest, TokenResponse } from '../models/auth.mod
 
 const ACCESS_TOKEN_KEY = 'hs_access_token';
 const REFRESH_TOKEN_KEY = 'hs_refresh_token';
-const API = 'http://localhost:5000/auth';
+const API = '/auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

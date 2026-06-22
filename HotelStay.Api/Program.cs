@@ -1,8 +1,10 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using FluentValidation;
 using HotelStay.Api.Endpoints;
 using HotelStay.Api.Middleware;
+using HotelStay.Api.Validators;
 using HotelStay.Application.Services;
 using HotelStay.Domain.Services;
 using HotelStay.Infrastructure;
@@ -59,6 +61,9 @@ try
 
     builder.Services.AddAuthorization();
 
+    // FluentValidation — register all validators in this assembly
+    builder.Services.AddValidatorsFromAssemblyContaining<SearchQueryValidator>();
+
     builder.Services.AddInfrastructure();
 
     builder.Services.AddSingleton<CityClassificationService>();
@@ -100,6 +105,16 @@ try
     // Serilog outermost so it sees the final status code after exception handling
     app.UseSerilogRequestLogging();
     app.UseExceptionMiddleware();
+
+    // Security headers
+    app.Use(async (ctx, next) =>
+    {
+        ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        ctx.Response.Headers["X-Frame-Options"] = "DENY";
+        ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+        await next();
+    });
+
     app.UseCors("AllowAngular");
     app.UseRateLimiter();
     app.UseAuthentication();
