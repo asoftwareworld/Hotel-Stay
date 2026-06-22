@@ -8,11 +8,11 @@ A full-stack hotel availability feature built for the SkyRoute platform. Travell
 
 ```
 hotel-stay/
-├── HotelStay.Api/            .NET 8 Minimal API — HTTP boundary, routing, auth middleware
+├── HotelStay.Api/            .NET 8 Web API (controllers) — HTTP boundary, routing, auth middleware
 ├── HotelStay.Application/    Orchestration — services, interfaces, DTOs
 ├── HotelStay.Domain/         Business logic — entities, rules, exceptions
 ├── HotelStay.Infrastructure/ Stubs (PremierStays, BudgetNests) + in-memory stores
-├── HotelStay.Tests/          xUnit — 47 unit + integration tests
+├── HotelStay.Tests/          xUnit — 56 unit + integration tests
 └── hotel-stay-ui/            Angular 17 standalone SPA
 ```
 
@@ -21,6 +21,7 @@ hotel-stay/
 - Clean Architecture — Domain has no dependencies on infrastructure
 - In-memory `ConcurrentDictionary` for reservation and user/token storage (no database required)
 - JWT access tokens (15 min) + rotating refresh tokens (7 days) — stateless API access with secure session renewal
+- MVC controllers (`[ApiController]`) for all HTTP routing — `AuthController` and `HotelsController`
 - Angular Signals (not NgRx) — linear flow, no cross-feature state
 - RFC 7807 Problem Details for all error responses
 
@@ -74,13 +75,28 @@ Frontend available at **http://localhost:4200**. On first load you are redirecte
 dotnet test
 ```
 
-47 tests — 8 unit (AuthService), 14 integration (auth endpoints), 25 integration (search + reservation endpoints).
+56 tests — unit (AuthService, ReservationService, providers, domain services) + integration (auth, search, reservation endpoints).
 
 Run with coverage:
 
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
 ```
+
+---
+
+## Default User
+
+A seeded admin account is available immediately on startup — no registration needed for local development.
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@hotelstay.com` |
+| Username | `admin` |
+| Password | `Admin1234` |
+| Role | Admin |
+
+Use these credentials with `POST /auth/login` to get a token pair and start making requests.
 
 ---
 
@@ -110,6 +126,7 @@ All hotel API endpoints require a valid JWT. Obtain one by registering or loggin
 ### Registration rules
 
 - Email must be a valid address
+- Username is required and must be at least 2 characters
 - Password must be at least 8 characters
 
 ### Using the access token

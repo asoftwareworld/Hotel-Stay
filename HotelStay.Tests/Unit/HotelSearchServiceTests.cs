@@ -3,6 +3,7 @@ using HotelStay.Application.DTOs;
 using HotelStay.Application.Interfaces;
 using HotelStay.Application.Services;
 using HotelStay.Domain.Enums;
+using HotelStay.Domain.Exceptions;
 using HotelStay.Domain.Services;
 using HotelStay.Domain.ValueObjects;
 using Moq;
@@ -77,5 +78,19 @@ public class HotelSearchServiceTests
 
         result.Results.Should().BeEmpty();
         result.TotalResults.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task SearchAsync_UnknownDestination_ThrowsUnknownDestinationException()
+    {
+        var provider = new Mock<IHotelProvider>();
+        var sut = new HotelSearchService([provider.Object], CityClassification);
+
+        var query = new SearchQueryDto("UnknownCity123", CheckIn, CheckOut, null);
+
+        var act = async () => await sut.SearchAsync(query);
+
+        await act.Should().ThrowAsync<UnknownDestinationException>()
+            .WithMessage("*UnknownCity123*");
     }
 }

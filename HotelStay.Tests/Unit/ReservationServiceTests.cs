@@ -6,6 +6,7 @@ using HotelStay.Domain.Entities;
 using HotelStay.Domain.Enums;
 using HotelStay.Domain.Exceptions;
 using HotelStay.Domain.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -18,7 +19,8 @@ public class ReservationServiceTests
     private readonly DocumentValidationService _documentValidation = new();
 
     private ReservationService CreateSut() =>
-        new(_storeMock.Object, _cityClassification, _documentValidation);
+        new(_storeMock.Object, _cityClassification, _documentValidation,
+            NullLogger<ReservationService>.Instance);
 
     private static ReserveRequestDto BuildRequest(
         string destination = "Oslo",

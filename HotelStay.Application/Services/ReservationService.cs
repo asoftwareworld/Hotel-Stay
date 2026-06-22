@@ -3,6 +3,7 @@ using HotelStay.Application.Interfaces;
 using HotelStay.Domain.Entities;
 using HotelStay.Domain.Exceptions;
 using HotelStay.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HotelStay.Application.Services;
 
@@ -11,15 +12,18 @@ public class ReservationService
     private readonly IReservationStore _store;
     private readonly CityClassificationService _cityClassification;
     private readonly DocumentValidationService _documentValidation;
+    private readonly ILogger<ReservationService> _logger;
 
     public ReservationService(
         IReservationStore store,
         CityClassificationService cityClassification,
-        DocumentValidationService documentValidation)
+        DocumentValidationService documentValidation,
+        ILogger<ReservationService> logger)
     {
         _store = store;
         _cityClassification = cityClassification;
         _documentValidation = documentValidation;
+        _logger = logger;
     }
 
     public async Task<ReservationDetailDto> ReserveAsync(ReserveRequestDto request, CancellationToken ct = default)
@@ -48,6 +52,10 @@ public class ReservationService
             CreatedAt: DateTimeOffset.UtcNow);
 
         _store.Save(reservation);
+
+        _logger.LogInformation(
+            "Reservation {Reference} created for guest {GuestName} at {Destination} ({Nights} nights). DocumentNumber: [REDACTED]",
+            reference, request.GuestName, request.Destination, nights);
 
         await Task.CompletedTask;
 
