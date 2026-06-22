@@ -37,12 +37,13 @@ public class AuthServiceTests
 
         var sut = CreateService(storeMock.Object, jwtMock.Object, hasherMock.Object);
 
-        var result = sut.Register(new RegisterDto("user@test.com", "Password1"));
+        var result = sut.Register(new RegisterDto("user@test.com", "testuser", "Password1"));
 
         result.AccessToken.Should().Be("access");
         result.RefreshToken.Should().Be("refresh");
         storeMock.Verify(s => s.Save(It.Is<User>(u =>
             u.Email == "user@test.com" &&
+            u.Username == "testuser" &&
             u.PasswordHash == "hashed" &&
             u.Role == UserRole.User)), Times.Once);
     }
@@ -50,20 +51,20 @@ public class AuthServiceTests
     [Fact]
     public void Register_DuplicateEmail_ThrowsEmailAlreadyExistsException()
     {
-        var existing = new User(Guid.NewGuid(), "user@test.com", "hash", UserRole.User, DateTimeOffset.UtcNow);
+        var existing = new User(Guid.NewGuid(), "user@test.com", "testuser", "hash", UserRole.User, DateTimeOffset.UtcNow);
         var storeMock = new Mock<IUserStore>();
         storeMock.Setup(s => s.GetByEmail("user@test.com")).Returns(existing);
 
         var sut = CreateService(storeMock.Object);
 
-        sut.Invoking(s => s.Register(new RegisterDto("user@test.com", "Password1")))
+        sut.Invoking(s => s.Register(new RegisterDto("user@test.com", "testuser", "Password1")))
             .Should().Throw<EmailAlreadyExistsException>();
     }
 
     [Fact]
     public void Login_ValidCredentials_ReturnsTokens()
     {
-        var user = new User(Guid.NewGuid(), "user@test.com", "hashed", UserRole.User, DateTimeOffset.UtcNow);
+        var user = new User(Guid.NewGuid(), "user@test.com", "testuser", "hashed", UserRole.User, DateTimeOffset.UtcNow);
         var storeMock = new Mock<IUserStore>();
         storeMock.Setup(s => s.GetByEmail("user@test.com")).Returns(user);
 
@@ -84,7 +85,7 @@ public class AuthServiceTests
     [Fact]
     public void Login_WrongPassword_ThrowsInvalidCredentialsException()
     {
-        var user = new User(Guid.NewGuid(), "user@test.com", "hashed", UserRole.User, DateTimeOffset.UtcNow);
+        var user = new User(Guid.NewGuid(), "user@test.com", "testuser", "hashed", UserRole.User, DateTimeOffset.UtcNow);
         var storeMock = new Mock<IUserStore>();
         storeMock.Setup(s => s.GetByEmail("user@test.com")).Returns(user);
 
@@ -113,7 +114,7 @@ public class AuthServiceTests
     public void Refresh_ActiveToken_RotatesTokenAndReturnsNew()
     {
         var userId = Guid.NewGuid();
-        var user = new User(userId, "u@t.com", "h", UserRole.User, DateTimeOffset.UtcNow);
+        var user = new User(userId, "u@t.com", "tester", "h", UserRole.User, DateTimeOffset.UtcNow);
         var oldToken = new RefreshToken("old-token", userId, DateTimeOffset.UtcNow.AddDays(1));
 
         var storeMock = new Mock<IUserStore>();

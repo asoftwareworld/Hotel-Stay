@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
-using HotelStay.Api.Endpoints;
 using HotelStay.Api.Middleware;
 using HotelStay.Api.Validators;
 using HotelStay.Application.Services;
@@ -61,6 +60,13 @@ try
 
     builder.Services.AddAuthorization();
 
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
     // FluentValidation — register all validators in this assembly
     builder.Services.AddValidatorsFromAssemblyContaining<SearchQueryValidator>();
 
@@ -94,12 +100,6 @@ try
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     });
 
-    builder.Services.ConfigureHttpJsonOptions(options =>
-    {
-        options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-
     var app = builder.Build();
 
     // Serilog outermost so it sees the final status code after exception handling
@@ -120,8 +120,10 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
-    app.MapAuthEndpoints();
-    app.MapHotelEndpoints();
+    app.MapGet("/", () => Results.Ok(new { status = "ok", service = "HotelStay API", version = "1.0" }))
+        .AllowAnonymous();
+
+    app.MapControllers();
 
     app.Run();
 }

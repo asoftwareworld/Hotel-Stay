@@ -39,7 +39,7 @@ public class ReservationEndpointTests : IAsyncLifetime
     private static async Task AuthorizeAsync(HttpClient client)
     {
         var res = await client.PostAsJsonAsync("/auth/register",
-            new { email = $"reserve_{Guid.NewGuid():N}@test.com", password = "Password1" });
+            new { email = $"reserve_{Guid.NewGuid():N}@test.com", username = "reserver", password = "Password1" });
         var token = await res.Content.ReadFromJsonAsync<TestTokenResponse>();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token!.AccessToken);

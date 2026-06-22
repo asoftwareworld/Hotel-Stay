@@ -24,7 +24,7 @@ public class AuthEndpointTests
     {
         var client = _factory.CreateClient();
         var res = await client.PostAsJsonAsync("/auth/register",
-            new { email = $"auth_{Guid.NewGuid():N}@test.com", password = "Password1" });
+            new { email = $"auth_{Guid.NewGuid():N}@test.com", username = "testuser", password = "Password1" });
         var token = await res.Content.ReadFromJsonAsync<TokenResponse>();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token!.AccessToken);
@@ -37,7 +37,7 @@ public class AuthEndpointTests
     public async Task Register_ValidBody_Returns201WithTokens()
     {
         var res = await _client.PostAsJsonAsync("/auth/register",
-            new { email = $"new_{Guid.NewGuid():N}@test.com", password = "Password1" });
+            new { email = $"new_{Guid.NewGuid():N}@test.com", username = "newuser", password = "Password1" });
 
         res.StatusCode.Should().Be(HttpStatusCode.Created);
         var body = await res.Content.ReadFromJsonAsync<TokenResponse>();
@@ -50,10 +50,10 @@ public class AuthEndpointTests
     {
         var email = $"dup_{Guid.NewGuid():N}@test.com";
         await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
 
         var res = await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
 
         res.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -62,7 +62,7 @@ public class AuthEndpointTests
     public async Task Register_ShortPassword_Returns400()
     {
         var res = await _client.PostAsJsonAsync("/auth/register",
-            new { email = "valid@test.com", password = "short" });
+            new { email = "valid@test.com", username = "testuser", password = "short" });
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -71,7 +71,7 @@ public class AuthEndpointTests
     public async Task Register_MissingEmail_Returns400()
     {
         var res = await _client.PostAsJsonAsync("/auth/register",
-            new { email = "", password = "Password1" });
+            new { email = "", username = "testuser", password = "Password1" });
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -83,10 +83,10 @@ public class AuthEndpointTests
     {
         var email = $"login_{Guid.NewGuid():N}@test.com";
         await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
 
         var res = await _client.PostAsJsonAsync("/auth/login",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await res.Content.ReadFromJsonAsync<TokenResponse>();
@@ -98,7 +98,7 @@ public class AuthEndpointTests
     {
         var email = $"bad_{Guid.NewGuid():N}@test.com";
         await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
 
         var res = await _client.PostAsJsonAsync("/auth/login",
             new { email, password = "WrongPass1" });
@@ -122,7 +122,7 @@ public class AuthEndpointTests
     {
         var email = $"refresh_{Guid.NewGuid():N}@test.com";
         var regRes = await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
         var reg = await regRes.Content.ReadFromJsonAsync<TokenResponse>();
 
         var res = await _client.PostAsJsonAsync("/auth/refresh",
@@ -148,7 +148,7 @@ public class AuthEndpointTests
     {
         var email = $"consume_{Guid.NewGuid():N}@test.com";
         var regRes = await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
         var reg = await regRes.Content.ReadFromJsonAsync<TokenResponse>();
 
         await _client.PostAsJsonAsync("/auth/refresh",
@@ -168,7 +168,7 @@ public class AuthEndpointTests
         var authedClient = await CreateAuthenticatedClientAsync();
         var email = $"logout_{Guid.NewGuid():N}@test.com";
         var regRes = await _client.PostAsJsonAsync("/auth/register",
-            new { email, password = "Password1" });
+            new { email, username = "testuser", password = "Password1" });
         var reg = await regRes.Content.ReadFromJsonAsync<TokenResponse>();
 
         authedClient.DefaultRequestHeaders.Authorization =

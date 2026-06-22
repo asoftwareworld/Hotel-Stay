@@ -26,6 +26,7 @@ public class AuthService
         var user = new User(
             Guid.NewGuid(),
             dto.Email.ToLowerInvariant(),
+            dto.Username.Trim(),
             _passwordHasher.Hash(dto.Password),
             UserRole.User,
             DateTimeOffset.UtcNow);

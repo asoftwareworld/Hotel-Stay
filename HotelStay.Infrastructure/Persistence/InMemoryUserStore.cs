@@ -6,8 +6,22 @@ namespace HotelStay.Infrastructure.Persistence;
 
 public sealed class InMemoryUserStore : IUserStore
 {
-    private readonly ConcurrentDictionary<string, User> _byEmail = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ConcurrentDictionary<Guid, User> _byId = new();
+    private static readonly User DefaultUser = new(
+        Id: new Guid("00000000-0000-0000-0000-000000000001"),
+        Email: "admin@hotelstay.com",
+        Username: "admin",
+        PasswordHash: "$2a$12$8ISkHmcZYKCl/v66PzmeF.naTrLD0VbpehJKIwsYKDAMQhBSimuSa", // Admin1234
+        Role: UserRole.Admin,
+        CreatedAt: DateTimeOffset.UtcNow);
+
+    private readonly ConcurrentDictionary<string, User> _byEmail = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [DefaultUser.Email] = DefaultUser,
+    };
+    private readonly ConcurrentDictionary<Guid, User> _byId = new()
+    {
+        [DefaultUser.Id] = DefaultUser,
+    };
     private readonly ConcurrentDictionary<string, RefreshToken> _tokens = new();
 
     public User? GetByEmail(string email)
